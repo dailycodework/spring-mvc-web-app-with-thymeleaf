@@ -31,5 +31,4 @@ public class VerificationToken {
         this.user = user;
         this.expirationTime = TokenExpirationTime.getExpirationTime();
     }
-
 }

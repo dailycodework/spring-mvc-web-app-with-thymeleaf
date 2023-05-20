@@ -1,7 +1,7 @@
 package com.dailycodework.sbend2endapplication.registration.password;
 
-import com.dailycodework.sbend2endapplication.utility.TokenExpirationTime;
 import com.dailycodework.sbend2endapplication.user.User;
+import com.dailycodework.sbend2endapplication.utility.TokenExpirationTime;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,7 +27,6 @@ public class PasswordResetToken {
     private User user;
 
     public PasswordResetToken(String token, User user) {
-        super();
         this.token = token;
         this.user = user;
         this.expirationTime = TokenExpirationTime.getExpirationTime();

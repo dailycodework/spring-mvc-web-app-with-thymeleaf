@@ -9,11 +9,11 @@ import java.util.Optional;
  */
 
 public interface IPasswordResetTokenService {
-    void createPasswordResetTokenForUser(User user, String token);
-    String validatePasswordResetToken(String token);
+    String validatePasswordResetToken(String theToken);
 
-    Optional<User> findUserByToken(String token);
+    Optional<User> findUserByPasswordResetToken(String theToken);
 
-    void resetPassword(User user, String newPassword);
+    void resetPassword(User theUser, String password);
 
+    void createPasswordResetTokenForUser(User user, String passwordResetToken);
 }

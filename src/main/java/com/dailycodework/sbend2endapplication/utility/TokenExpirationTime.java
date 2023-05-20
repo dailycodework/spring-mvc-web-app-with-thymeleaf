@@ -8,7 +8,7 @@ import java.util.Date;
  */
 
 public class TokenExpirationTime {
-    private static final int EXPIRATION_TIME = 1;
+    private static final int EXPIRATION_TIME = 10;
 
     public static Date getExpirationTime(){
         Calendar calendar = Calendar.getInstance();

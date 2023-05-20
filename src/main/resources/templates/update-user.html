@@ -2,19 +2,14 @@
 <html lang="en">
 <head th:replace="fragments :: boots_trap">
     <meta charset="UTF-8">
-    <title>User Registration Form</title>
+    <title>Update User</title>
 </head>
 <body>
-<div class="container col-md-offset-3 col-md-8 mt-lg-5">
+<div class="container col-md-offset-3 col-md-8 mt-lg-5 mb-md-5">
     <div th:replace="fragments :: nav_bar"></div>
-    <div class="row mt-2">
-        <div th:if="${param.success}" class=" alert alert-info">
-            Registration successful,
-            please check your email to complete your registration.
-        </div>
-        <h2 class="m-4">User Registration Form</h2>
-    </div>
-    <form th:action="@{/registration/register}" method="post" th:object="${user}" class="px-4">
+    <h2 class="m-4">Edit User</h2>
+    <form th:action="@{/users/update/{id}(id=${user.id})}" method="post" th:object="${user}" class="px-4">
+        <input type="hidden" th:field="*{id}">
         <div class="mb-3 row">
             <label for="firstName" class="col-sm-2 col-form-label">first Name</label>
             <div class="col-sm-6">
@@ -38,22 +33,10 @@
                        class="form-control" required name="email" th:field="*{email}" >
             </div>
         </div>
-
-        <div class="mb-3 row">
-            <label for="password" class="col-sm-2 col-form-label">Password</label>
-            <div class="col-sm-6">
-                <input type="password"  id="password" autofocus="autofocus"
-                       class="form-control" required name="password" th:field="*{password}" >
-            </div>
+        <div>
+            <button type="submit" class="btn btn-success">Update User</button>
         </div>
- <div>
-     <button type="submit" class="btn btn-success">Register</button>
-     <span>Registered already? <a href="/" th:href="@{/login}">
-         Login here.
-     </a></span>
- </div>
     </form>
 </div>
-
 </body>
 </html>

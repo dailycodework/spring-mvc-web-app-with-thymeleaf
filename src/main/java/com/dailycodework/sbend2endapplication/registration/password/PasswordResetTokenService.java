@@ -12,38 +12,41 @@ import java.util.Optional;
 /**
  * @author Sampson Alfred
  */
+
 @Service
 @RequiredArgsConstructor
 public class PasswordResetTokenService implements IPasswordResetTokenService {
     private final PasswordResetTokenRepository passwordResetTokenRepository;
-    private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+
     @Override
-    public void createPasswordResetTokenForUser(User user, String token) {
-        var passwordResetToken = new PasswordResetToken(token, user);
-        passwordResetTokenRepository.save(passwordResetToken);
-    }
-    @Override
-    public String validatePasswordResetToken(String token) {
-        Optional<PasswordResetToken> theToken = passwordResetTokenRepository.findByToken(token);
-        if (theToken.isEmpty()){
-            return "INVALID";
+    public String validatePasswordResetToken(String theToken) {
+        Optional<PasswordResetToken> passwordResetToken = passwordResetTokenRepository.findByToken(theToken);
+        if (passwordResetToken.isEmpty()){
+            return "invalid";
         }
         Calendar calendar = Calendar.getInstance();
-        if ((theToken.get().getExpirationTime().getTime()-calendar.getTime().getTime())<= 0){
-            return "EXPIRED";
+        if ((passwordResetToken.get().getExpirationTime().getTime()-calendar.getTime().getTime())<= 0){
+            return "expired";
         }
-        return "VALID";
+        return "valid";
     }
 
     @Override
-    public Optional<User> findUserByToken(String token) {
-        return Optional.ofNullable(passwordResetTokenRepository.findByToken(token).get().getUser());
+    public Optional<User> findUserByPasswordResetToken(String theToken) {
+        return Optional.ofNullable(passwordResetTokenRepository.findByToken(theToken).get().getUser());
     }
 
     @Override
-    public void resetPassword(User user, String newPassword) {
-        user.setPassword(passwordEncoder.encode(newPassword));
-        userRepository.save(user);
+    public void resetPassword(User theUser, String newPassword) {
+        theUser.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(theUser);
+    }
+    @Override
+    public void createPasswordResetTokenForUser(User user, String passwordResetToken) {
+        PasswordResetToken resetToken = new PasswordResetToken(passwordResetToken, user);
+        passwordResetTokenRepository.save(resetToken);
     }
 }

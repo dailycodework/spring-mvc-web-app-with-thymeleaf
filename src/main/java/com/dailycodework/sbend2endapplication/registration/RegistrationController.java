@@ -1,10 +1,9 @@
 package com.dailycodework.sbend2endapplication.registration;
-
 import com.dailycodework.sbend2endapplication.event.RegistrationCompleteEvent;
 import com.dailycodework.sbend2endapplication.event.listener.RegistrationCompleteEventListener;
+import com.dailycodework.sbend2endapplication.registration.password.IPasswordResetTokenService;
 import com.dailycodework.sbend2endapplication.registration.password.PasswordResetTokenService;
 import com.dailycodework.sbend2endapplication.registration.token.VerificationToken;
-import com.dailycodework.sbend2endapplication.registration.token.VerificationTokenRepository;
 import com.dailycodework.sbend2endapplication.registration.token.VerificationTokenService;
 import com.dailycodework.sbend2endapplication.user.IUserService;
 import com.dailycodework.sbend2endapplication.user.User;
@@ -17,9 +16,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+
 import java.io.UnsupportedEncodingException;
 import java.util.Optional;
 import java.util.UUID;
+
 
 /**
  * @author Sampson Alfred
@@ -31,8 +32,9 @@ public class RegistrationController {
     private final IUserService userService;
     private final ApplicationEventPublisher publisher;
     private final VerificationTokenService tokenService;
-    private final PasswordResetTokenService passwordResetTokenService;
+    private final IPasswordResetTokenService passwordResetTokenService;
     private final RegistrationCompleteEventListener eventListener;
+
 
     @GetMapping("/registration-form")
     public String showRegistrationForm(Model model) {
@@ -61,51 +63,47 @@ public class RegistrationController {
                 return "redirect:/error?invalid";
         }
     }
- //=========================== Password reset zone ========================================
     @GetMapping("/forgot-password-request")
-    public String forgotPassword(){
-        return "forgot-password";
+    public String forgotPasswordForm(){
+        return "forgot-password-form";
     }
 
     @PostMapping("/forgot-password")
-    public String forgotPassword(HttpServletRequest request, Model model){
+    public String resetPasswordRequest(HttpServletRequest request, Model model){
         String email = request.getParameter("email");
-        User user = userService.findByEmail(email);
-        if (user == null){
-            return "redirect:/registration/forgot-password-request?not_found";
+        Optional<User> user= userService.findByEmail(email);
+        if (user.isEmpty()){
+            return  "redirect:/registration/forgot-password-request?not_fond";
         }
         String passwordResetToken = UUID.randomUUID().toString();
-        passwordResetTokenService.createPasswordResetTokenForUser(user,passwordResetToken);
+        passwordResetTokenService.createPasswordResetTokenForUser(user.get(), passwordResetToken);
         //send password reset verification email to the user
         String url = UrlUtil.getApplicationUrl(request)+"/registration/password-reset-form?token="+passwordResetToken;
         try {
             eventListener.sendPasswordResetVerificationEmail(url);
-        } catch (MessagingException | UnsupportedEncodingException  e) {
+        } catch (MessagingException | UnsupportedEncodingException e) {
             model.addAttribute("error", e.getMessage());
         }
         return "redirect:/registration/forgot-password-request?success";
     }
-
-    @GetMapping("/password-reset-form")
+  @GetMapping("/password-reset-form")
     public String passwordResetForm(@RequestParam("token") String token, Model model){
         model.addAttribute("token", token);
-        return "reset-password";
+        return "password-reset-form";
     }
     @PostMapping("/reset-password")
     public String resetPassword(HttpServletRequest request){
-        String token = request.getParameter("token");
-        String newPassword = request.getParameter("password");
-        String tokenVerificationResult = passwordResetTokenService.validatePasswordResetToken(token);
+        String theToken = request.getParameter("token");
+        String password = request.getParameter("password");
+        String tokenVerificationResult = passwordResetTokenService.validatePasswordResetToken(theToken);
         if (!tokenVerificationResult.equalsIgnoreCase("valid")){
             return "redirect:/error?invalid_token";
         }
-        Optional<User> theUser = passwordResetTokenService.findUserByToken(token);
+        Optional<User> theUser = passwordResetTokenService.findUserByPasswordResetToken(theToken);
         if (theUser.isPresent()){
-            passwordResetTokenService.resetPassword(theUser.get(), newPassword);
+            passwordResetTokenService.resetPassword(theUser.get(), password);
             return "redirect:/login?reset_success";
         }
         return "redirect:/error?not_found";
     }
-
-    //=========================== End password reset zone ========================================
 }

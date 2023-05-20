@@ -9,13 +9,13 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
   mail:
     host: smtp.gmail.com
     port: 587
     username: dailycodeworks@gmail.com
-    password:
+    password: yr_email_pass
     properties:
       mail:
         smtp:
